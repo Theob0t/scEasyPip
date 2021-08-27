@@ -18,7 +18,8 @@ Imports:
   ggplot2 (>= 3.3.0),
   sctransform (>= 0.3.2),
   umap,
-  stringr
+  stringr,
+  ggraph
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
