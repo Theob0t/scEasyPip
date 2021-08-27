@@ -8,8 +8,7 @@ Authors@R: person(given = "Theo",
                   comment = c(ORCID = "https://orcid.org/0000-0003-0331-2491"))
 Description: Automated analysis of scRNA seq. 10x output using Seurat package.
 Depends:
-  R (>= 3.1.0)
-Imports:
+  R (>= 3.1.0),
   Seurat (>= 4.0.0),
   SeuratObject,
   patchwork,
