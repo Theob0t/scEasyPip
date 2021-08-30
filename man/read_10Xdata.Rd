@@ -7,10 +7,11 @@
 read_10Xdata(
   data.dir,
   output.dir = NULL,
-  min.cells,
-  min.features,
-  mt.pattern,
-  project.name
+  min.cells = 3,
+  min.features = 200,
+  mt.pattern = "^mt-",
+  project.name = "SeuratProject",
+  ...
 )
 }
 \arguments{

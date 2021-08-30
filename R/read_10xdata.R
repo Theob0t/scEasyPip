@@ -13,19 +13,16 @@
 #' @return A Seurat Object and its QC plots
 #'
 #' @importFrom patchwork wrap_plots
-#'
-#' @export
-#'
 #' @import Seurat
 #'
-#'
+#' @export
 read_10Xdata <-
   function(data.dir,
            output.dir = NULL,
-           min.cells,
-           min.features,
-           mt.pattern,
-           project.name) {
+           min.cells = 3,
+           min.features = 200,
+           mt.pattern = '^mt-',
+           project.name = 'SeuratProject',...) {
 
     obj.data <- Seurat::Read10X(data.dir = data.dir)
     obj <-

@@ -9,7 +9,8 @@ Authors@R: person(given = "Theo",
 Description: Automated analysis of scRNA seq. 10x output using Seurat package.
 Depends:
   R (>= 3.1.0),
-  Seurat (>= 4.0.0),
+  Seurat (>= 4.0.0)
+Imports:
   SeuratObject,
   patchwork,
   clustree,
@@ -18,7 +19,10 @@ Depends:
   sctransform (>= 0.3.2),
   umap,
   stringr,
-  ggraph
+  ggraph,
+  dorothea,
+  dplyr,
+  viper
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

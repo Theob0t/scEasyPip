@@ -30,20 +30,21 @@
 #' @importFrom stringr str_to_title
 #' @importFrom grDevices dev.off
 #' @importFrom stats quantile
-#' @export
+#'
 #'
 #' @import Seurat
 #' @import clustree
 #' @import MAST
 #' @import sctransform
+#'
+#'
+#' @export
 
 run_seurat <-
   function(data.dir = getwd(),
+           object = NULL,
            output.dir = getwd(),
-           min.cells = 3,
            min.features = 200,
-           mt.pattern = '^mt-',
-           project.name = 'SeuratProject',
            max.percent.mt = 15,
            max.features = NULL,
            max.nCount = NULL,
@@ -52,6 +53,7 @@ run_seurat <-
            ndims = 50,
            dims = 1:35,
            resolution = seq(0.1, 1, 0.1),
+           use.silhouette = TRUE,
            cellcycle = TRUE,
            genes.FeaturePlot = NULL,
            genes.DotPlot = NULL,
@@ -61,20 +63,32 @@ run_seurat <-
            logfc.threshold = 0.25,
            test.use = 'MAST',
            save.rds = TRUE,
-           integrated.assay = FALSE,...) {
-
+           integrated.assay = FALSE,
+           tf.activity = FALSE,
+           ...) {
     options(warn = -1)
 
-    obj <-
-      read_10Xdata(
-        data.dir = data.dir,
-        output.dir = output.dir,
-        min.cells = min.cells,
-        min.features = min.features,
-        mt.pattern = mt.pattern,
-        project.name = project.name
-      )
+    if (is.null(object)) {
+      obj <-
+        read_10Xdata(
+          data.dir = data.dir,
+          output.dir = output.dir,
+          min.cells = min.cells,
+          min.features = min.features,
+          mt.pattern = mt.pattern,
+          project.name = project.name,
+          ...
+        )
+    }
 
+    else {
+      if (class(object)[1] != "Seurat") {
+        stop('A 10x output directory or a Seurat object is needed')
+      }
+      obj <- object
+    }
+
+    message(DefaultAssay(obj))
     message('QC filtering')
 
     cells_nb_pre_qc <- length(colnames(obj))
@@ -86,8 +100,33 @@ run_seurat <-
       max.features <- quantile(obj$nFeature_RNA, 0.99, names = F)
     }
 
-    save_plot(output.dir = output.dir, filename = 'QC_percent.mt', Seurat::FeatureScatter(obj, feature1 = "nFeature_RNA", feature2 = "percent.mt")+geom_hline(yintercept = max.percent.mt, linetype='dashed')+ggtitle(paste('QC plot \nFiltering Low-quality / dying cells \nMitochondrial counts over ', max.percent.mt,'%')))
-    save_plot(output.dir = output.dir, filename = 'QC_nCount',Seurat::FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")+geom_hline(yintercept = max.features, linetype='dashed')+geom_vline(xintercept = max.nCount, linetype='dashed')+ggtitle(paste('QC plot \n','filter cells that have unique feature counts over', round(max.features),'and high gene count over ', round(max.nCount))))
+    save_plot(
+      output.dir = output.dir,
+      filename = 'QC_percent.mt',
+      Seurat::FeatureScatter(obj, feature1 = "nFeature_RNA", feature2 = "percent.mt") +
+        geom_hline(yintercept = max.percent.mt, linetype = 'dashed') + ggtitle(
+          paste(
+            'QC plot \nFiltering Low-quality / dying cells \nMitochondrial counts over ',
+            max.percent.mt,
+            '%'
+          )
+        )
+    )
+    save_plot(
+      output.dir = output.dir,
+      filename = 'QC_nCount',
+      Seurat::FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") +
+        geom_hline(yintercept = max.features, linetype = 'dashed') + geom_vline(xintercept = max.nCount, linetype =
+                                                                                  'dashed') + ggtitle(
+                                                                                    paste(
+                                                                                      'QC plot \n',
+                                                                                      'filter cells that have unique feature counts over',
+                                                                                      round(max.features),
+                                                                                      'and high gene count over ',
+                                                                                      round(max.nCount)
+                                                                                    )
+                                                                                  )
+    )
 
 
     obj <-
@@ -101,65 +140,105 @@ run_seurat <-
     cells_nb_post_qc <- length(colnames(obj))
 
     save_plot(
-      output.dir=output.dir, 'QC_filtering',
-      Seurat::FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")+ggtitle(paste('QC plot after filtering (',cells_nb_pre_qc-cells_nb_post_qc,' cells removed)' ))
+      output.dir = output.dir,
+      'QC_filtering',
+      Seurat::FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") +
+        ggtitle(
+          paste(
+            'QC plot after filtering (',
+            cells_nb_pre_qc - cells_nb_post_qc,
+            ' cells removed)'
+          )
+        )
     )
 
     #NORMALIZATION
-    if (sctransform) {
-      message('Normalization method: SCTransform')
-      obj <-
-        Seurat::SCTransform(obj, vars.to.regress = vars.to.regress, verbose = F)
+    if (!tf.activity) {
+      if (sctransform) {
+        message('Normalization method: SCTransform')
+        obj <-
+          Seurat::SCTransform(obj,
+                              vars.to.regress = vars.to.regress,
+                              verbose = F,
+                              ...)
+      }
+      else {
+        message('SCTransform set to FALSE')
+        message('Normalization method: Log-Nomalization')
+        obj <-
+          Seurat::NormalizeData(
+            obj,
+            normalization.method = "LogNormalize",
+            scale.factor = 10000,
+            verbose = F,
+            ...
+          )
+        obj <-
+          Seurat::FindVariableFeatures(
+            obj,
+            selection.method = "vst",
+            nfeatures = 2000,
+            verbose = F,
+            ...
+          )
+        obj <-
+          Seurat::ScaleData(obj, features = rownames(obj), verbose = F, ...)
+
+      }
     }
 
-    else {
 
-      message('SCTransform set to FALSE')
-      message('Normalization method: Log-Nomalization')
-      obj <-
-        Seurat::NormalizeData(
-          obj,
-          normalization.method = "LogNormalize",
-          scale.factor = 10000,
-          verbose = F
-        )
-      obj <-
-        Seurat::FindVariableFeatures(
-          obj,
-          selection.method = "vst",
-          nfeatures = 2000,
-          verbose = F
-        )
-      obj <-
-        Seurat::ScaleData(obj, features = rownames(obj), verbose = F)
-
-    }
 
     #CLUSTERING
     message('Dimensional Reduction')
-    obj <- Seurat::RunPCA(obj, verbose = FALSE)
+    obj <- Seurat::RunPCA(obj, verbose = FALSE, ...)
 
-    save_plot(output.dir = output.dir, filename = 'ElbowPlot', Seurat::ElbowPlot(obj, ndims = ndims))
+    save_plot(
+      output.dir = output.dir,
+      filename = 'ElbowPlot',
+      Seurat::ElbowPlot(obj, ndims = ndims, ...) + geom_vline(xintercept = max(dims))
+    )
 
     message('Clustering')
-    obj <- Seurat::FindNeighbors(obj, dims = dims, verbose = FALSE)
     obj <-
-      Seurat::FindClusters(obj, resolution = resolution, verbose = FALSE)
+      Seurat::FindNeighbors(obj, dims = dims, verbose = FALSE, ...)
+    obj <-
+      Seurat::FindClusters(obj, resolution = resolution, verbose = FALSE, ...)
 
     message('Running UMAP')
     obj <-
-      Seurat::RunUMAP(obj, dims = dims, umap.method = "umap-learn", verbose=FALSE)
+      Seurat::RunUMAP(obj,
+                      dims = dims,
+                      umap.method = "umap-learn",
+                      verbose = FALSE,
+                      ...)
     #obj <- Seurat::FindClusters(obj, resolution = 0.3, verbose = FALSE)
 
     if (sctransform) {
-      save_plot(output.dir = output.dir, filename = 'clustree', clustree(obj, prefix = 'SCT_snn_res.'))
+      save_plot(
+        output.dir = output.dir,
+        filename = 'clustree',
+        clustree::clustree(obj, prefix = 'SCT_snn_res.')
+      )
     }
-    else {
-      save_plot(output.dir = output.dir, filename = 'clustree', clustree(obj, prefix = 'RNA_snn_res.'))
+    if (TRUE %in% grepl('^RNA', x = colnames(obj@meta.data))) {
+      save_plot(
+        output.dir = output.dir,
+        filename = 'clustree',
+        clustree::clustree(obj, prefix = 'RNA_snn_res.')
+      )
+    }
+    if (TRUE %in% grepl('^dorothea', x = colnames(obj@meta.data))) {
+      save_plot(
+        output.dir = output.dir,
+        filename = 'clustree',
+        clustree::clustree(obj, prefix = 'dorothea_snn_res.')
+      )
     }
 
     save_plot(
-      output.dir = output.dir, filename = 'clustree_overlay',
+      output.dir = output.dir,
+      filename = 'clustree_overlay',
       clustree_overlay(
         obj,
         red_dim = "umap",
@@ -168,14 +247,36 @@ run_seurat <-
       )
     )
 
-    save_plot(output.dir=output.dir,filename = 'DimPlot_umap',
-              Seurat::DimPlot(obj, reduction = 'umap', label = TRUE))
     save_plot(
-      output.dir = output.dir, filename = 'Dimplot_umap_orig.ident',
+      output.dir = output.dir,
+      filename = 'DimPlot_umap',
+      Seurat::DimPlot(obj, reduction = 'umap', label = TRUE)
+    )
+    save_plot(
+      output.dir = output.dir,
+      filename = 'Dimplot_umap_orig.ident',
       Seurat::DimPlot(obj, reduction = 'umap', group.by = 'orig.ident')
     )
 
+    obj <-
+      Seurat::FindClusters(obj, resolution = 0.5, verbose = FALSE, ...)
+    save_plot(
+      output.dir = output.dir,
+      filename = 'Dimplot_res_0.5',
+      Seurat::DimPlot(obj, reduction = 'umap') + ggtitle('Cluster resolution = 0.5')
+    )
+
+
+
     if (cellcycle) {
+      assay <- DefaultAssay(obj)
+      if (sctransform) {
+        DefaultAssay(obj) <- 'SCT'
+      }
+      else {
+        DefaultAssay(obj) <- 'RNA'
+      }
+
       message('Cell Cycling Scoring')
       s.genes <- str_to_title(tolower(cc.genes$s.genes))
       g2m.genes <- str_to_title(tolower(cc.genes$g2m.genes))
@@ -184,26 +285,42 @@ run_seurat <-
           obj,
           s.features = s.genes,
           g2m.features = g2m.genes,
-          set.ident = FALSE
+          set.ident = FALSE,
+          ...
         )
-      save_plot(output.dir=output.dir, filename = 'cellcycle',
-                Seurat::DimPlot(obj, reduction = 'umap', label = TRUE, group.by = 'Phase'))
+      save_plot(
+        output.dir = output.dir,
+        filename = 'cellcycle',
+        Seurat::DimPlot(
+          obj,
+          reduction = 'umap',
+          label = TRUE,
+          group.by = 'Phase'
+        )
+      )
+      DefaultAssay(obj) <- assay
     }
     else{
       message('cellcycle set to FALSE')
     }
 
     if (!is.null(genes.FeaturePlot)) {
-      save_plot(output.dir=output.dir, filename='FeaturePlot',
-                Seurat::FeaturePlot(obj, features = genes.FeaturePlot))
+      save_plot(
+        output.dir = output.dir,
+        filename = 'FeaturePlot',
+        Seurat::FeaturePlot(obj, features = genes.FeaturePlot)
+      )
     }
     else{
       message('No genes.FeaturePlot provided')
     }
 
     if (!is.null(genes.DotPlot)) {
-      save_plot(output.dir=output.dir,filename='DotPlot',
-                Seurat::DotPlot(obj, features = genes.DotPlot))
+      save_plot(
+        output.dir = output.dir,
+        filename = 'DotPlot',
+        Seurat::DotPlot(obj, features = genes.DotPlot)
+      )
     }
     else{
       message('No genes.DotPlot provided')
@@ -217,21 +334,21 @@ run_seurat <-
           only.pos = only.pos,
           min.pct = min.pct,
           logfc.threshold = logfc.threshold,
-          test.use = test.use
+          test.use = test.use,
+          ...
         )
-      write.csv(obj_markers, paste(output.dir, '/markers_obj.csv', sep=''))
+      write.csv(obj_markers, paste0(output.dir, '/markers_obj.csv'))
     }
     else{
       message('find.all.markers set to FALSE')
     }
 
-    if (save.rds){saveRDS(obj, file = output.dir)}
+    if (save.rds) {
+      saveRDS(obj, file = paste0(output.dir, '/seurat.obj.Rds'))
+    }
 
     message(paste('DONE ! All your plots and the final object are in :', output.dir))
 
     return(obj)
 
   }
-
-
-

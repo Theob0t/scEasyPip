@@ -6,11 +6,9 @@
 \usage{
 run_seurat(
   data.dir = getwd(),
+  object = NULL,
   output.dir = getwd(),
-  min.cells = 3,
   min.features = 200,
-  mt.pattern = "^mt-",
-  project.name = "SeuratProject",
   max.percent.mt = 15,
   max.features = NULL,
   max.nCount = NULL,
@@ -19,6 +17,7 @@ run_seurat(
   ndims = 50,
   dims = 1:35,
   resolution = seq(0.1, 1, 0.1),
+  use.silhouette = TRUE,
   cellcycle = TRUE,
   genes.FeaturePlot = NULL,
   genes.DotPlot = NULL,
@@ -29,6 +28,7 @@ run_seurat(
   test.use = "MAST",
   save.rds = TRUE,
   integrated.assay = FALSE,
+  tf.activity = FALSE,
   ...
 )
 }
@@ -37,6 +37,8 @@ run_seurat(
 files provided by 10X. A vector or named vector can be given in order to load
 several data directories. If a named vector is given, the cell barcode names
 will be prefixed with the name.}
+
+\item{object}{A seurat object}
 
 \item{output.dir}{Path to the output directory - where plots and markers file will be saved}
 

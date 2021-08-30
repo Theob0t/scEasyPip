@@ -20,13 +20,12 @@
 #' @importFrom stringr str_to_title
 #' @importFrom grDevices dev.off
 #' @importFrom stats quantile
-#' @export
 #'
 #' @import Seurat
 #' @import patchwork
 #' @import sctransform
 #' @import ggplot2
-#'
+#' @export
 run_integration <- function(rds.list, output.dir=getwd(), resolution=0.5, grouping.var = 'orig.ident', find.conserved.markers = FALSE, ident.1 = NULL,
                             ident.2 = NULL, save.rds=TRUE, ...){
 
