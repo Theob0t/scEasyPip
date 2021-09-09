@@ -87,7 +87,7 @@ run_integration <- function(rds.list, output.dir=getwd(), resolution=0.5, groupi
 
   if (save.rds){
     print('saving rds')
-    saveRDS(object = obj.integrated, file =paste(output.dir,'obj.integrated.Rds'))
+    saveRDS(object = obj.integrated, file =paste(output.dir,'/obj.integrated.Rds'))
     }
 
   message(paste('DONE ! All your plots and the final integrated object are in :', output.dir))

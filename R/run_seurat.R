@@ -45,6 +45,9 @@ run_seurat <-
            object = NULL,
            output.dir = getwd(),
            min.features = 200,
+           min.cells=3,
+           project.name='KL_project',
+           mt.pattern='^mt-',
            max.percent.mt = 15,
            max.features = NULL,
            max.nCount = NULL,
@@ -57,7 +60,7 @@ run_seurat <-
            cellcycle = TRUE,
            genes.FeaturePlot = NULL,
            genes.DotPlot = NULL,
-           find.all.markers = F,
+           find.all.markers = T,
            only.pos = TRUE,
            min.pct = 0.25,
            logfc.threshold = 0.25,
@@ -90,7 +93,6 @@ run_seurat <-
 
     message(DefaultAssay(obj))
     message('QC filtering')
-
     cells_nb_pre_qc <- length(colnames(obj))
 
     if (is.null(max.nCount)) {
@@ -120,9 +122,9 @@ run_seurat <-
                                                                                   'dashed') + ggtitle(
                                                                                     paste(
                                                                                       'QC plot \n',
-                                                                                      'filter cells that have unique feature counts over',
+                                                                                      'filter out cells that have unique feature counts over',
                                                                                       round(max.features),
-                                                                                      'and high gene count over ',
+                                                                                      'and high gene count over',
                                                                                       round(max.nCount)
                                                                                     )
                                                                                   )
@@ -296,7 +298,7 @@ run_seurat <-
           reduction = 'umap',
           label = TRUE,
           group.by = 'Phase'
-        )
+        )+ggtitle('Cell Cycle Phases')
       )
       DefaultAssay(obj) <- assay
     }
@@ -343,7 +345,9 @@ run_seurat <-
       message('find.all.markers set to FALSE')
     }
 
+    message('Nearly done.. Hold tight!')
     if (save.rds) {
+      message('saving rds file ...')
       saveRDS(obj, file = paste0(output.dir, '/seurat.obj.Rds'))
     }
 
