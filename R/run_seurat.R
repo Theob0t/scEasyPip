@@ -52,6 +52,7 @@ run_seurat <-
            max.features = NULL,
            max.nCount = NULL,
            sctransform = F,
+           logtransform = T,
            vars.to.regress = c('percent.mt', 'nCount_RNA'),
            ndims = 50,
            dims = 1:35,
@@ -164,8 +165,7 @@ run_seurat <-
                               verbose = F,
                               ...)
       }
-      else {
-        message('SCTransform set to FALSE')
+      if(logtransform) {
         message('Normalization method: Log-Nomalization')
         obj <-
           Seurat::NormalizeData(
@@ -188,8 +188,6 @@ run_seurat <-
 
       }
     }
-
-
 
     #CLUSTERING
     message('Dimensional Reduction')
