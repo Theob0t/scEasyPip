@@ -1,19 +1,19 @@
 Package: scEasyPip
 Title: Automated Seurat Pipeline for scRNA-seq analysis
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: person(given = "Theo",
                   family = "Botella",
                   role = c("aut", "cre"),
                   email = "tb2928@cumc.columbia.edu",
-                  comment = c(ORCID = "https://orcid.org/0000-0003-0331-2491"))
-Description: Automated analysis of scRNA seq. 10x output using Seurat package.
+                  comment = c(ORCID = "0000-0003-0331-2491"))
+Description: Automated scRNA-seq analysis using 10x output and the Seurat package. Perform Quality Control, Normalization, Dimensionality Reduction, Visualization, Clustering and DGE using Seurat. Assign cell-types to cluster based on your own markers. Merge or integrated Seurat objects. Cluster cells using Transcription Factors activity with Viper and Dorothea packages.
 Depends:
-  R (>= 3.1.0),
-  Seurat (>= 4.0.0)
+  R (>= 4.1),
+  Seurat (>= 4.0.0),
+  clustree (>= 0.4.3)
 Imports:
   SeuratObject,
   patchwork,
-  clustree,
   MAST,
   ggplot2 (>= 3.3.0),
   sctransform (>= 0.3.2),
@@ -22,12 +22,16 @@ Imports:
   ggraph,
   dorothea,
   dplyr,
-  viper
+  viper,
+  grDevices,
+  stats,
+  utils 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1.9001
+RoxygenNote: 7.1.2
+biocViews: Software
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
