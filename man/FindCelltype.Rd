@@ -7,11 +7,11 @@
 FindCelltype(
   markers.file,
   consensus.file,
-  object,
+  object = NULL,
   output.dir,
   filename = NULL,
-  save.rds = T,
-  label = T,
+  save.rds = TRUE,
+  label = TRUE,
   ...
 )
 }
@@ -22,11 +22,11 @@ FindCelltype(
 
 \item{object}{A Seurat object}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 
 \item{filename}{Character string to name the saved umap plots}
 
-\item{save.rds}{Save the final Seurat object in RDS format (default set to True)}
+\item{save.rds}{Save final Seurat object in RDS format (default set to True)}
 
 \item{label}{Boolean to display cluster labels on umap plots}
 

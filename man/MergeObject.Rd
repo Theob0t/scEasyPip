@@ -17,9 +17,9 @@ MergeObject(
 
 \item{obj.list}{A vector of Seurat objects}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 
-\item{save.rds}{Save the final Seurat object in RDS format (default set to True)}
+\item{save.rds}{Save final Seurat object in RDS format (default set to True)}
 
 \item{...}{Arguments passed to \code{\link[SeuratObject]{as.sparse}}}
 }

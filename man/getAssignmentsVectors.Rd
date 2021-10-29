@@ -7,12 +7,14 @@
 getAssignmentsVectors(consensus, markers)
 }
 \arguments{
-\item{consensus}{Consensus dataframe (2 columns per celltype: markers and log-fold)}
+\item{consensus}{Consensus dataframe (2 columns per cell-type labelled
+cell-type e.g., 'Stem-Cell', and FC_cell-type e.g., 'FC_Stem-Cell')}
 
 \item{markers}{Markers dataframe (FindAllMarkers() output)}
 }
 \value{
-Return two vectors with cell assignments. One using the max number of overlap. The other using the max total FoldChange.
+Return two vectors with cell assignments.
+One using the max number of overlap, and one using max total FoldChange.
 }
 \description{
 Assign clusters to cell identities from the consensus file provided

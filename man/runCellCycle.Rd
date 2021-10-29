@@ -4,14 +4,16 @@
 \alias{runCellCycle}
 \title{Perform cell cycle scoring}
 \usage{
-runCellCycle(object, output.dir, no.plot)
+runCellCycle(object, output.dir, no.plot, sctransform)
 }
 \arguments{
 \item{object}{A Seurat object}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 
-\item{no.plot}{Run the pipeline without saving the plots (default set to False)}
+\item{no.plot}{If set, run the pipeline without saving the plots}
+
+\item{sctransform}{If set, use SCTransform normalization}
 }
 \value{
 A Seurat object with Cell Cycle phase for each cells

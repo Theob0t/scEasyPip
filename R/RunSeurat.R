@@ -128,7 +128,6 @@ RunSeurat <- function(data.dir = getwd(),
         ggtitle(paste("QC plot \n", "filter out cells that have unique feature counts over",
             round(max.features), "and high gene count over", round(max.nCount))))
 
-
     obj <- subset(obj, subset = nFeature_RNA > min.features & nFeature_RNA < max.features &
         percent.mt < max.percent.mt & nCount_RNA < max.nCount)
 
@@ -147,7 +146,7 @@ RunSeurat <- function(data.dir = getwd(),
 
     ## CellCycle
     if (cellcycle) {
-        object <- runCellCycle(object = object, output.dir = output.dir, no.plot = no.plot)
+        object <- runCellCycle(object = object, output.dir = output.dir, no.plot = no.plot, sctransform = sctransform)
     } else {
         message("cellcycle set to FALSE")
     }
@@ -307,7 +306,7 @@ runClustering <- function(object, output.dir, ndims, dims, resolution, no.plot, 
 #' @import Seurat
 #'
 #' @export
-runCellCycle <- function(object, output.dir, no.plot) {
+runCellCycle <- function(object, output.dir, no.plot, sctransform) {
     assay <- DefaultAssay(object)
     if (sctransform) {
         DefaultAssay(object) <- "SCT"

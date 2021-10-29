@@ -15,9 +15,9 @@ RunSeurat(
   max.percent.mt = 15,
   max.features = NULL,
   max.nCount = NULL,
-  sctransform = F,
-  logtransform = T,
-  no.plot = F,
+  sctransform = FALSE,
+  logtransform = TRUE,
+  no.plot = FALSE,
   vars.to.regress = c("percent.mt", "nCount_RNA"),
   ndims = 50,
   dims = 1:35,
@@ -25,7 +25,7 @@ RunSeurat(
   cellcycle = TRUE,
   genes.FeaturePlot = NULL,
   genes.DotPlot = NULL,
-  find.all.markers = T,
+  find.all.markers = TRUE,
   only.pos = TRUE,
   min.pct = 0.25,
   logfc.threshold = 0.25,
@@ -33,6 +33,8 @@ RunSeurat(
   save.rds = TRUE,
   integrated.assay = FALSE,
   tf.activity = FALSE,
+  species = "mouse",
+  dorothea.confidence = c("A", "B", "C"),
   ...
 )
 }
@@ -44,7 +46,7 @@ will be prefixed with the name.}
 
 \item{object}{A Seurat object}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 
 \item{min.features}{Include cells where at least this many features are
 detected.}
@@ -55,19 +57,19 @@ new object with a lower cutoff.}
 
 \item{project.name}{Name of the project/object used for titles in plots}
 
-\item{mt.pattern}{The regex pattern of the mitochondrial genes ('^MT-' or '^mt-')}
+\item{mt.pattern}{Regex pattern of the mitochondrial genes ('^MT-' or '^mt-')}
 
 \item{max.percent.mt}{Mitochondrial counts threshold (default set to 15)}
 
 \item{max.features}{Maximum number of gene per cell (default 99-quantile)}
 
-\item{max.nCount}{Maximum number of reads per cell for QC (default 99-quantile)}
+\item{max.nCount}{Maximum number of reads per cell (default 99-quantile)}
 
-\item{sctransform}{Run the SCTransform normalization from Seurat (default set to False)}
+\item{sctransform}{If set, use SCTransform normalization}
 
-\item{logtransform}{Run the default log-normalization from Seurat (default set to True)}
+\item{logtransform}{Run the default log-normalization from Seurat}
 
-\item{no.plot}{Run the pipeline without saving the plots (default set to False)}
+\item{no.plot}{If set, run the pipeline without saving the plots}
 
 \item{vars.to.regress}{Variables to regress out in a second non-regularized linear
 regression. For example, percent.mito. Default is NULL}
@@ -80,13 +82,13 @@ regression. For example, percent.mito. Default is NULL}
 \item{resolution}{Value of the resolution parameter, use a value above
 (below) 1.0 if you want to obtain a larger (smaller) number of communities.}
 
-\item{cellcycle}{Run CellCycle Scoring from Seurat (default set to True)}
+\item{cellcycle}{Run CellCycle Scoring from Seurat}
 
 \item{genes.FeaturePlot}{A list of genes for Seurat FeaturePlot}
 
 \item{genes.DotPlot}{A list of genes for Seurat DotPlot}
 
-\item{find.all.markers}{Run Differential Gene Expression (default set to True)}
+\item{find.all.markers}{Run Differential Gene Expression}
 
 \item{only.pos}{Only return positive markers (FALSE by default)}
 
@@ -139,11 +141,15 @@ Increasing logfc.threshold speeds up the function, but can miss weaker signals.}
  https://bioconductor.org/packages/release/bioc/html/DESeq2.html
 }}
 
-\item{save.rds}{Save the final Seurat object in RDS format (default set to True)}
+\item{save.rds}{Save final Seurat object in RDS format (default set to True)}
 
-\item{integrated.assay}{Run the pipeline on the integrated assay (default set to False)}
+\item{integrated.assay}{If set, run the pipeline on the integrated assay}
 
-\item{tf.activity}{Run Seurat pipeline on TF activity - Run RunTfPipeline function first (default set to False)}
+\item{tf.activity}{Run Seurat pipeline on TF activity}
+
+\item{species}{Mouse or human}
+
+\item{dorothea.confidence}{Confidence levels of regulons}
 
 \item{...}{Arguments passed to \code{\link[SeuratObject]{as.sparse}}}
 }

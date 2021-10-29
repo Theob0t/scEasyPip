@@ -17,7 +17,7 @@ runClustering(
 \arguments{
 \item{object}{A Seurat object}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 
 \item{ndims}{Number of dimensions to plot standard deviation for}
 
@@ -27,9 +27,9 @@ runClustering(
 \item{resolution}{Value of the resolution parameter, use a value above
 (below) 1.0 if you want to obtain a larger (smaller) number of communities.}
 
-\item{no.plot}{Run the pipeline without saving the plots (default set to False)}
+\item{no.plot}{If set, run the pipeline without saving the plots}
 
-\item{sctransform}{Run the SCTransform normalization from Seurat (default set to False)}
+\item{sctransform}{If set, use SCTransform normalization}
 }
 \value{
 A Seurat object with cells clustered and some cluster visualizations

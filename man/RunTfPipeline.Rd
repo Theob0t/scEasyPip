@@ -7,27 +7,17 @@
 RunTfPipeline(
   data.dir = NULL,
   object = NULL,
-  output.dir = NULL,
   species = "mouse",
   dorothea.confidence = c("A", "B", "C"),
   ...
 )
 }
 \arguments{
-\item{data.dir}{Directory containing the matrix.mtx, genes.tsv (or features.tsv), and barcodes.tsv
-files provided by 10X. A vector or named vector can be given in order to load
-several data directories. If a named vector is given, the cell barcode names
-will be prefixed with the name.}
-
 \item{object}{A Seurat object}
-
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
 
 \item{species}{Mouse or human}
 
 \item{dorothea.confidence}{Confidence levels of regulons}
-
-\item{...}{Arguments passed to \code{\link[SeuratObject]{as.sparse}}}
 }
 \value{
 A processed Seurat Object along with visualization plots

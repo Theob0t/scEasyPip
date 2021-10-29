@@ -11,7 +11,7 @@ SavePlot(filename, plot, output.dir)
 
 \item{plot}{The plot to save}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 }
 \value{
 The plot saved as a png image

@@ -25,7 +25,7 @@
 #'
 #' @export
 
-FindCelltype <- function(markers.file, consensus.file, object, output.dir, filename = NULL,
+FindCelltype <- function(markers.file, consensus.file, object=NULL, output.dir, filename = NULL,
     save.rds = TRUE, label = TRUE, ...) {
     ## 1 - Check inputs
     inputs <- checkInputs(markers.file = markers.file, consensus.file = consensus.file,
@@ -40,29 +40,33 @@ FindCelltype <- function(markers.file, consensus.file, object, output.dir, filen
     cluster.ident.fc <- vectors[[1]]
     cluster.ident.nb <- vectors[[2]]
 
+
     ## 3 - Save results
-    names(cluster.ident.fc) <- levels(object)
+    if(!is.null(object)){
+        names(cluster.ident.fc) <- levels(object)
 
-    object$assignment_fc <- Idents(RenameIdents(object, cluster.ident.fc))
+        object$assignment_fc <- Idents(RenameIdents(object, cluster.ident.fc))
 
-    names(cluster.ident.nb) <- levels(object)
+        names(cluster.ident.nb) <- levels(object)
 
-    object$assignment_nb <- Idents(RenameIdents(object, cluster.ident.nb))
+        object$assignment_nb <- Idents(RenameIdents(object, cluster.ident.nb))
 
-    SavePlot(output.dir = output.dir, filename = paste0("Dimplot_", filename), plot = Seurat::DimPlot(object,
-        reduction = "umap", label = label) + ggtitle("Cluster Identity"))
+        SavePlot(output.dir = output.dir, filename = paste0("Dimplot_", filename), plot = Seurat::DimPlot(object,
+            reduction = "umap", label = label) + ggtitle("Cluster Identity"))
 
-    SavePlot(output.dir = output.dir, filename = paste0("DimPlot_fc_", filename), plot = Seurat::DimPlot(object,
-        reduction = "umap", group.by = "assignment_fc", label = label) + ggtitle("Cluster assignment (FoldChange)"))
+        SavePlot(output.dir = output.dir, filename = paste0("DimPlot_fc_", filename), plot = Seurat::DimPlot(object,
+            reduction = "umap", group.by = "assignment_fc", label = label) + ggtitle("Cluster assignment (FoldChange)"))
 
-    SavePlot(output.dir = output.dir, filename = paste0("DimPlot_nb_", filename), Seurat::DimPlot(object,
-        reduction = "umap", group.by = "assignment_nb", label = label) + ggtitle("Cluster assignment (# of markers)"))
+        SavePlot(output.dir = output.dir, filename = paste0("DimPlot_nb_", filename), Seurat::DimPlot(object,
+            reduction = "umap", group.by = "assignment_nb", label = label) + ggtitle("Cluster assignment (# of markers)"))
 
-    if (save.rds) {
-        saveRDS(object, paste0(output.dir, "/assigned_object.Rds"))
+        if (save.rds) {
+            saveRDS(object, paste0(output.dir, "/assigned_object.Rds"))
+        }
+
+        return(object)
     }
-
-    return(object)
+    #return()
 }
 
 
@@ -79,23 +83,29 @@ FindCelltype <- function(markers.file, consensus.file, object, output.dir, filen
 #' @import dplyr
 #' @export
 checkInputs <- function(markers.file, consensus.file, object, filename) {
-    if (is.null(filename)) {
-        filename <- object@project.name
-    }
+    if (!is.null(object)){
 
-    ## check if data has been logtransformed
-    if (dim(object@assays[["RNA"]]@scale.data)[1] == 0) {
-        stop("RNA assay not Log-Normalized")
-    }
+        if (is.null(filename)) {
+            filename <- object@project.name
+        }
 
-    ## check if clustering has been ran
-    if (is.null(object@meta.data[["seurat_clusters"]])) {
-        stop("No cluster in object")
-    }
+        ## check if data has been logtransformed
+        if (dim(object@assays[["RNA"]]@scale.data)[1] == 0) {
+            stop("RNA assay not Log-Normalized")
+        }
 
+        ## check if clustering has been ran
+        if (is.null(object@meta.data[["seurat_clusters"]])) {
+            stop("No cluster in object")
+        }
+    }
     ## read files
-    markers <- read.csv(markers.file)
-    consensus <- read.csv(consensus.file)
+    if(is.character(markers.file)){
+        markers <- read.csv(markers.file)
+    }
+    if(is.character(markers.file)){
+        consensus <- read.csv(consensus.file)
+    }
 
     return(list(markers, consensus))
 }
@@ -118,11 +128,12 @@ checkInputs <- function(markers.file, consensus.file, object, filename) {
 #' @export
 getAssignmentsVectors <- function(consensus, markers) {
     celltypes <- colnames(consensus %>%
-        select(-contains("FC_")))
+                              select(-contains("FC_")))
 
     cluster.ident.fc <- vector()
     cluster.ident.nb <- vector()
 
+    #print(cat('celltypes:',celltypes))
     ## Get marker genes and scores of each cluster
     for (c in 0:max(markers$cluster)) {
         cluster <- subset(markers, cluster == c) %>%
@@ -132,21 +143,23 @@ getAssignmentsVectors <- function(consensus, markers) {
         nb.scores <- vector()
 
         ## Get intersection between cell-type markers and cluster markers
-        i <- 0
-        for (ctype in celltypes) {
+        for (t in seq_along(celltypes)) {
+            ctype <- celltypes[t]
             commun.genes <- intersect(cluster[, "gene"], consensus[, ctype])
 
 
             fc.consensus <- consensus[consensus[, ctype] %in% commun.genes,
                                       paste0("FC_", ctype)]
 
-            nb.scores[i] <- length(fc.consensus)
-            fc.scores[i] <- round(sum(fc.consensus), 1)
+            nb.scores[t] <- length(fc.consensus)
+            fc.scores[t] <- round(sum(fc.consensus), 1)
 
-            i <- i + 1
         }
-        cluster.ident.fc[c] <- celltypes[which.max(fc.scores)]
-        cluster.ident.nb[c] <- celltypes[which.max(nb.scores)]
+
+        message(cat('cluster',c, '->', round(sd(nb.scores))))
+        cluster.ident.fc[c+1] <- celltypes[which.max(fc.scores)]
+        cluster.ident.nb[c+1] <- celltypes[which.max(nb.scores)]
+
     }
     return(list(cluster.ident.fc, cluster.ident.nb))
 }

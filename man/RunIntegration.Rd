@@ -22,21 +22,21 @@ RunIntegration(
 
 \item{obj.list}{A vector of Seurat objects}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 
 \item{resolution}{Value of the resolution parameter, use a value above
 (below) 1.0 if you want to obtain a larger (smaller) number of communities.}
 
 \item{grouping.var}{grouping variable}
 
-\item{find.conserved.markers}{Run FindConservedMarkers function (default set to False)}
+\item{find.conserved.markers}{Run FindConservedMarkers (default set to False)}
 
 \item{ident.1}{Identity class to define markers for}
 
 \item{ident.2}{A second identity class for comparison. If NULL (default) -
 use all other cells for comparison.}
 
-\item{save.rds}{Save the final Seurat object in RDS format (default set to True)}
+\item{save.rds}{Save final Seurat object in RDS format (default set to True)}
 
 \item{...}{Arguments passed to \code{\link[SeuratObject]{as.sparse}}}
 }
@@ -44,14 +44,6 @@ use all other cells for comparison.}
 An integrated Seurat Object along with its visualization plots
 }
 \description{
-This function run the following steps of the Seurat Anchors Integration pipeline :
-\itemize{
-\item Create Seurat Object
-\item QC
-\item Normalization
-\item Dimensional Reduction
-\item Clustering
-\item Visualization
-\item Differential Gene Expression
-}
+This function integrate a list of Seurat objects using the Seurat Anchors
+Integration Pipeline and the SCTransform normalization
 }

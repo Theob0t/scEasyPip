@@ -20,7 +20,7 @@ files provided by 10X. A vector or named vector can be given in order to load
 several data directories. If a named vector is given, the cell barcode names
 will be prefixed with the name.}
 
-\item{output.dir}{Path to the output directory - where plots and markers file will be saved}
+\item{output.dir}{Path to the destination folder of saved files}
 
 \item{min.cells}{Include features detected in at least this many cells. Will
 subset the counts matrix as well. To reintroduce excluded features, create a
@@ -29,7 +29,7 @@ new object with a lower cutoff.}
 \item{min.features}{Include cells where at least this many features are
 detected.}
 
-\item{mt.pattern}{The regex pattern of the mitochondrial genes ('^MT-' or '^mt-')}
+\item{mt.pattern}{Regex pattern of the mitochondrial genes ('^MT-' or '^mt-')}
 
 \item{project.name}{Name of the project/object used for titles in plots}
 

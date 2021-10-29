@@ -15,11 +15,11 @@ runNormalization(
 \arguments{
 \item{object}{A Seurat object}
 
-\item{sctransform}{Run the SCTransform normalization from Seurat (default set to False)}
+\item{sctransform}{If set, use SCTransform normalization}
 
-\item{logtransform}{Run the default log-normalization from Seurat (default set to True)}
+\item{logtransform}{Run the default log-normalization from Seurat}
 
-\item{tf.activity}{Run Seurat pipeline on TF activity - Run RunTfPipeline function first (default set to False)}
+\item{tf.activity}{Run Seurat pipeline on TF activity}
 
 \item{vars.to.regress}{Variables to regress out in a second non-regularized linear
 regression. For example, percent.mito. Default is NULL}
