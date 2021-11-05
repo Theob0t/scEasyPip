@@ -117,25 +117,31 @@ RunSeurat <- function(data.dir = getwd(),
         max.features <- quantile(obj$nFeature_RNA, 0.99, names = FALSE)
     }
 
-    SavePlot(output.dir = output.dir, filename = "QC_percent.mt", Seurat::FeatureScatter(obj,
-        feature1 = "nFeature_RNA", feature2 = "percent.mt") + geom_hline(yintercept = max.percent.mt,
-        linetype = "dashed") + ggtitle(paste("Filtering Low-quality / dying cells \nMitochondrial counts over ",
-        max.percent.mt, "%")))
+    if(!no.plot){
+      SavePlot(output.dir = output.dir, filename = "QC_percent.mt", Seurat::FeatureScatter(obj,
+                                                                                           feature1 = "nFeature_RNA", feature2 = "percent.mt") + geom_hline(yintercept = max.percent.mt,
+                                                                                                                                                            linetype = "dashed") + ggtitle(paste("Filtering Low-quality / dying cells \nMitochondrial counts over ",
+                                                                                                                                                                                                 max.percent.mt, "%")))
 
-    SavePlot(output.dir = output.dir, filename = "QC_nCount", Seurat::FeatureScatter(obj,
-        feature1 = "nCount_RNA", feature2 = "nFeature_RNA") + geom_hline(yintercept = max.features,
-        linetype = "dashed") + geom_vline(xintercept = max.nCount, linetype = "dashed") +
-        ggtitle(paste("QC plot \n", "filter out cells that have unique feature counts over",
-            round(max.features), "and high gene count over", round(max.nCount))))
+      SavePlot(output.dir = output.dir, filename = "QC_nCount", Seurat::FeatureScatter(obj,
+                                                                                       feature1 = "nCount_RNA", feature2 = "nFeature_RNA") + geom_hline(yintercept = max.features,
+                                                                                                                                                        linetype = "dashed") + geom_vline(xintercept = max.nCount, linetype = "dashed") +
+                 ggtitle(paste("QC plot \n", "filter out cells that have unique feature counts over",
+                               round(max.features), "and high gene count over", round(max.nCount))))
+
+    }
 
     obj <- subset(obj, subset = nFeature_RNA > min.features & nFeature_RNA < max.features &
         percent.mt < max.percent.mt & nCount_RNA < max.nCount)
 
     cells.nb.post.qc <- length(colnames(obj))
 
-    SavePlot(output.dir = output.dir, "QC_filtering", Seurat::FeatureScatter(obj, feature1 = "nCount_RNA",
-        feature2 = "nFeature_RNA") + ggtitle(paste("QC plot after filtering (", cells.nb.pre.qc -
-        cells.nb.post.qc, " cells removed)")))
+    if(!no.plot){
+      SavePlot(output.dir = output.dir, "QC_filtering", Seurat::FeatureScatter(obj, feature1 = "nCount_RNA",
+                                                                               feature2 = "nFeature_RNA") + ggtitle(paste("QC plot after filtering (", cells.nb.pre.qc -
+                                                                                                                            cells.nb.post.qc, " cells removed)")))
+
+    }
 
     ## NORMALIZATION
     obj <- runNormalization(object = obj, sctransform = sctransform, logtransform = logtransform,
@@ -146,7 +152,7 @@ RunSeurat <- function(data.dir = getwd(),
 
     ## CellCycle
     if (cellcycle) {
-        object <- runCellCycle(object = object, output.dir = output.dir, no.plot = no.plot, sctransform = sctransform)
+        object <- runCellCycle(object = obj, output.dir = output.dir, no.plot = no.plot, sctransform = sctransform)
     } else {
         message("cellcycle set to FALSE")
     }
